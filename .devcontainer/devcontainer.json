@@ -1,0 +1,74 @@
+{
+  "$schema": "https://raw.githubusercontent.com/devcontainers/spec/refs/heads/main/schemas/devContainer.schema.json",
+  "name": "DevContainer Template",
+  "dockerComposeFile": [
+    // You can add your custom compose files here.
+    "../compose.yaml",
+    "./compose.yaml"
+  ],
+  "service": "workspace",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "init": true,
+  "remoteUser": "${localEnv:USERNAME:devuser}",
+  "containerUser": "${localEnv:USERNAME:devuser}",
+  "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
+  "initializeCommand": "bash .devcontainer/initializeCommand.sh",
+  "remoteEnv": {
+    "LOCAL_WORKSPACE_FOLDER": "{localWorkspaceFolder:/workspace}"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      // For Debian trixie
+      "moby": false,
+      "disableIp6tables": true
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/git-lfs:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/copilot-cli:1": {},
+    "ghcr.io/devcontainers-extra/features/act:1": {},
+    "ghcr.io/devcontainers-extra/features/actionlint:1": {},
+    "ghcr.io/devcontainers-extra/features/pnpm:2": {},
+    "ghcr.io/devcontainers-extra/features/ripgrep:1": {}
+    // You can add more features here.
+    // https://containers.dev/features
+  },
+  "customizations": {
+    // You can customize your dev container for VS Code, Codespaces, and JetBrains IDEs.
+    "vscode": {
+      "extensions": [
+        "bierner.markdown-mermaid",
+        "christian-kohler.path-intellisense",
+        "DavidAnson.vscode-markdownlint",
+        "docker.docker",
+        "donjayamanne.git-extension-pack",
+        "EditorConfig.EditorConfig",
+        "GitHub.copilot-chat",
+        "github.vscode-github-actions",
+        "GitHub.vscode-pull-request-github",
+        "mikestead.dotenv",
+        "ms-azuretools.vscode-containers",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml"
+      ],
+      "mcp": {},
+      "settings": {}
+    },
+    "codespaces": {
+      "repositories": {}
+    },
+    "jetbrains": {
+      "plugins": [
+        "com.github.copilot",
+        "ru.adelf.idea.dotenv",
+        "Docker",
+        "org.jetbrains.plugins.github",
+        "org.editorconfig.editorconfigjetbrains",
+        "org.jetbrains.plugins.docker.gateway"
+      ]
+    }
+  }
+}

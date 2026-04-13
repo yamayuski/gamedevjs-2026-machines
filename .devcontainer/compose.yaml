@@ -1,0 +1,34 @@
+services:
+  workspace:
+    image: dev/workspace:latest
+    pull_policy: build
+    build:
+      context: .devcontainer
+      dockerfile: Dockerfile
+      args:
+        USERNAME: ${USERNAME:-devuser}
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+        TZ: ${TZ:-UTC}
+        LANGUAGE: ${LANGUAGE:-en}
+        COUNTRY: ${COUNTRY:-US}
+        ENCODING: ${ENCODING:-UTF-8}
+        LOCALE: ${LOCALE:-"en_US.UTF-8 UTF-8"}
+        EDITOR: ${EDITOR:-vim}
+    entrypoint:
+      # for docker-outside-of-docker
+      - /usr/local/share/docker-init.sh
+    command:
+      - sleep
+      - infinity
+    volumes:
+      - type: bind
+        source: ${LOCAL_WORKSPACE_FOLDER:-.}
+        target: /workspace
+      - type: volume
+        source: workspace-bashhistory
+        target: /commandhistory
+
+volumes:
+  workspace-bashhistory:
+    driver: local
