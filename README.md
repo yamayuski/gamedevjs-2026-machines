@@ -1,34 +1,89 @@
-# My workspace template with DevContainer
+# RAGDOLL MECHANIC
 
-## Requirements
+> A Babylon.js + Havok physics browser game for **GameDev.js Jam 2026** — theme: **MACHINES**
 
-### Git on host OS
+Control a floppy ragdoll engineer with independent left/right hand inputs, climb colossal broken machines, and repair them before time runs out. Every attempt plays out differently thanks to full rigid-body physics.
 
-Git credential helper may be installed and its configuration will be shared to container.
+## Quick Start
 
-- GitHub Docs: <https://docs.github.com/get-started/git-basics/caching-your-github-credentials-in-git>
-- Windows: <https://github.com/git-for-windows/git/releases>
-  - `git credential-manager github login` to login GitHub
+All source code lives in the `code/` directory.
 
-### OPTIONAL: Sharing GPG KEys
+```bash
+cd code
 
-If you want to sign your git commits, you can share your GPG keys to container.
+# Install dependencies (uses pnpm via vite-plus)
+vp install
 
-<https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials#_sharing-gpg-keys>
+# Start development server
+vp dev
 
-### Any docker-compatible engine
+# Type-check + production build
+vp build
 
-I am Windows user but I do not need Graphical User Interface, so I will use [Docker Engine for Linux](https://docs.docker.com/engine/install/) in WSL2(Ubuntu Distro). **DO NOT CLONE ANY REPOSITORY INSIDE WINDOWS FILESYSTEM**. It will be very slow.
+# Preview production build
+vp preview
+```
 
-You can also [attach to a container in a Kubernetes cluster](https://code.visualstudio.com/docs/devcontainers/attach-container#_attach-to-a-container-in-a-kubernetes-cluster) or pick [Alternate ways to install Docker](https://code.visualstudio.com/remote/advancedcontainers/docker-options).
+> **Requires:** Node.js ≥ 20, pnpm (managed automatically by `vp`), Docker (for DevContainer).
 
-**NOTICE: You need Docker Buildx to build this devcontainer.**
+## Tech Stack
 
-### vscode or JetBrains IDE
+| Layer | Technology |
+|---|---|
+| Renderer | Babylon.js 9 (WebGL 2 / WebGPU) |
+| Physics | Havok via `@babylonjs/havok` (WASM + SIMD) |
+| Language | TypeScript 6 (strict) |
+| Bundler | Vite via `vite-plus` |
+| Package manager | pnpm |
+| Platform | Browser PWA — PC + mobile |
 
-- [Remote Development extension pack](https://aka.ms/vscode-remote/download/extension) in vscode
+## Folder Structure
 
-## References
+```
+.
+├── code/               # All source code
+│   ├── src/
+│   │   ├── core/       # Engine bootstrap, scene, input
+│   │   ├── physics/    # Ragdoll, hand grab, world colliders
+│   │   ├── machines/   # One folder per repairable machine
+│   │   ├── repair/     # Repair state machine, snap sockets
+│   │   ├── rendering/  # Camera, lighting, materials, particles, post-process
+│   │   ├── audio/      # Collision-driven SFX, layered BGM
+│   │   ├── ui/         # HUD, title screen, score screen
+│   │   ├── save/       # localStorage persistence
+│   │   └── config/     # Tuning constants
+│   └── package.json
+├── docs/               # Product documentation (see below)
+└── LICENSE
+```
 
-- [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers)
-- [Development containers](https://containers.dev/)
+## Documentation
+
+| Document | Contents |
+|---|---|
+| [docs/overview.md](docs/overview.md) | Pitch, core loop, key features, jam criteria fit |
+| [docs/spec.md](docs/spec.md) | MUST/SHOULD/COULD requirements, controls, machine definitions, save format |
+| [docs/architecture.md](docs/architecture.md) | Module layout, physics design, rendering pipeline, audio system |
+| [docs/schedule.md](docs/schedule.md) | 14-day sprint plan, Go/No-Go checkpoints, risk register |
+| [docs/assets.md](docs/assets.md) | Art direction, asset list with budgets, audio licensing notes |
+
+## DevContainer Setup
+
+A DevContainer configuration is included for reproducible development environments.
+
+### Requirements
+
+**Git on host OS** — credential helper config is shared into the container.
+
+**Docker-compatible engine** — recommended: Docker Engine for Linux in WSL2 (Ubuntu).  
+**DO NOT clone inside the Windows filesystem** — it will be very slow.
+
+**VS Code** with the [Remote Development extension pack](https://aka.ms/vscode-remote/download/extension), or a JetBrains IDE with Docker support.
+
+> Docker Buildx is required to build the DevContainer.
+
+**Optional — GPG key sharing** for signed commits: see the [VS Code advanced containers guide](https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials#_sharing-gpg-keys).
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE).
