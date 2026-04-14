@@ -26,6 +26,8 @@ jobs:
     # You can define any steps you want, and they will run before the agent starts.
     # If you do not check out your code, Copilot will do this for you.
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
       - uses: voidzero-dev/setup-vp@8ecb39174989ce55af90f45cf55b02738599831d # v1.6.0
         with:
           node-version: "24"
@@ -34,3 +36,5 @@ jobs:
 
       - run: vp install
         working-directory: code
+
+      - run: npx playwright install --with-deps
