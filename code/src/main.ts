@@ -10,6 +10,7 @@ import {
     MeshBuilder,
     PhysicsAggregate,
     PhysicsShapeType,
+    PointerEventTypes,
     Scene,
     StandardMaterial,
     Vector3,
@@ -57,13 +58,43 @@ async function main(): Promise<void> {
     ground.material = groundMat;
     new PhysicsAggregate(ground, PhysicsShapeType.BOX, { mass: 0, restitution: 0.4 }, scene);
 
-    // Sphere — dynamic rigid body (mass = 1), starts 6 units above the ground
-    const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1, segments: 16 }, scene);
-    sphere.position.y = 6;
+    // Shared material for all spawned spheres
     const sphereMat = new StandardMaterial("sphereMat", scene);
     sphereMat.diffuseColor = new Color3(0.8, 0.2, 0.2);
-    sphere.material = sphereMat;
-    new PhysicsAggregate(sphere, PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.4 }, scene);
+
+    const MAX_SPHERES = 20;
+    const spheres: ReturnType<typeof MeshBuilder.CreateSphere>[] = [];
+    let sphereCount = 0;
+
+    // Spawn a Sphere rigid body on mouse click or touch tap
+    scene.onPointerObservable.add((pointerInfo) => {
+        if (pointerInfo.type !== PointerEventTypes.POINTERDOWN) return;
+
+        // Remove the oldest sphere when the cap is reached
+        if (spheres.length >= MAX_SPHERES) {
+            spheres.shift()?.dispose();
+        }
+
+        const pickInfo = pointerInfo.pickInfo;
+        const spawnPosition =
+            pickInfo?.hit && pickInfo.pickedPoint
+                ? new Vector3(
+                      pickInfo.pickedPoint.x,
+                      pickInfo.pickedPoint.y + 5,
+                      pickInfo.pickedPoint.z,
+                  )
+                : new Vector3(0, 6, 0);
+
+        const sphere = MeshBuilder.CreateSphere(
+            `sphere${sphereCount++}`,
+            { diameter: 1, segments: 16 },
+            scene,
+        );
+        sphere.position = spawnPosition;
+        sphere.material = sphereMat;
+        new PhysicsAggregate(sphere, PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.9 }, scene);
+        spheres.push(sphere);
+    });
 
     engine.runRenderLoop(() => {
         scene.render();
