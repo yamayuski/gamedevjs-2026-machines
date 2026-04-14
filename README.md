@@ -1,34 +1,56 @@
-# My workspace template with DevContainer
+# PHYSICS FACTORY 🏭⚙️
 
-## Requirements
+> **GameDevJS Jam 2026 — Theme: MACHINES**
 
-### Git on host OS
+A 3D browser-based clicker/idle factory game built with **Babylon.js** and the **Havok** physics engine.
+Click cranks, buy machines, automate production, and watch a steampunk factory come alive — all with real-time physics simulation, no installation required.
 
-Git credential helper may be installed and its configuration will be shared to container.
+## Play
 
-- GitHub Docs: <https://docs.github.com/get-started/git-basics/caching-your-github-credentials-in-git>
-- Windows: <https://github.com/git-for-windows/git/releases>
-  - `git credential-manager github login` to login GitHub
+> _URL will be published here after deployment._
 
-### OPTIONAL: Sharing GPG KEys
+## Documentation
 
-If you want to sign your git commits, you can share your GPG keys to container.
+### English
 
-<https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials#_sharing-gpg-keys>
+| Doc | Description |
+|---|---|
+| [Overview](docs/overview.md) | Concept, core loop, platform targets |
+| [Spec](docs/spec.md) | Functional & non-functional requirements, game mechanics |
+| [Architecture](docs/architecture.md) | Tech stack, project structure, key systems |
+| [Schedule](docs/schedule.md) | 14-day development plan with milestones |
+| [Assets](docs/assets.md) | 3D models, textures, audio, PWA asset plan |
 
-### Any docker-compatible engine
+### 日本語
 
-I am Windows user but I do not need Graphical User Interface, so I will use [Docker Engine for Linux](https://docs.docker.com/engine/install/) in WSL2(Ubuntu Distro). **DO NOT CLONE ANY REPOSITORY INSIDE WINDOWS FILESYSTEM**. It will be very slow.
+| ドキュメント | 内容 |
+|---|---|
+| [概要](docs/overview.ja.md) | コンセプト・コアループ・プラットフォーム目標 |
+| [仕様書](docs/spec.ja.md) | 機能要件・非機能要件・ゲームメカニクス |
+| [アーキテクチャ](docs/architecture.ja.md) | 技術スタック・プロジェクト構成・主要システム |
+| [スケジュール](docs/schedule.ja.md) | 14日間の開発計画とマイルストーン |
+| [アセット](docs/assets.ja.md) | 3Dモデル・テクスチャ・オーディオ・PWAアセット計画 |
 
-You can also [attach to a container in a Kubernetes cluster](https://code.visualstudio.com/docs/devcontainers/attach-container#_attach-to-a-container-in-a-kubernetes-cluster) or pick [Alternate ways to install Docker](https://code.visualstudio.com/remote/advancedcontainers/docker-options).
+## Tech Stack
 
-**NOTICE: You need Docker Buildx to build this devcontainer.**
+| Layer | Technology |
+|---|---|
+| Engine | [Babylon.js](https://www.babylonjs.com/) 7.x |
+| Physics | [Havok](https://www.havok.com/) (WASM + SIMD) |
+| Build | [Vite](https://vite.dev/) + TypeScript |
+| Deploy | GitHub Pages / Cloudflare Pages |
+| PWA | `manifest.json` + Service Worker (Workbox) |
 
-### vscode or JetBrains IDE
+## Development
 
-- [Remote Development extension pack](https://aka.ms/vscode-remote/download/extension) in vscode
+```bash
+cd code
+vp install   # install dependencies
+vp dev       # start dev server
+vp build     # production build
+vp test      # run tests
+```
 
-## References
+## License
 
-- [Developing inside a Container](https://code.visualstudio.com/docs/devcontainers/containers)
-- [Development containers](https://containers.dev/)
+See [LICENSE](LICENSE).
