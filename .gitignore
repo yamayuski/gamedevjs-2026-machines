@@ -24,6 +24,6 @@ coverage/
 *Zone.Identifier
 Thumbs.db
 
-.pnpm-cache/
+.pnpm-store/
 node_modules/
 vendor/

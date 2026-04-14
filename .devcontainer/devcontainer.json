@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/devcontainers/spec/refs/heads/main/schemas/devContainer.schema.json",
-  "name": "DevContainer Template",
+  "name": "Machines Dev Container",
   "dockerComposeFile": [
     // You can add your custom compose files here.
     "../compose.yaml",
@@ -52,10 +52,19 @@
         "mikestead.dotenv",
         "ms-azuretools.vscode-containers",
         "ms-azuretools.vscode-docker",
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "VoidZero.vite-plus-extension-pack"
       ],
       "mcp": {},
-      "settings": {}
+      "settings": {
+        "editor.defaultFormatter": "oxc.oxc-vscode",
+        "oxc.fmt.configPath": "./code/vite.config.ts",
+        "editor.formatOnSave": true,
+        "editor.formatOnSaveMode": "file",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.oxc": "explicit"
+        }
+      }
     },
     "codespaces": {
       "repositories": {}
