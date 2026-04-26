@@ -1,6 +1,6 @@
 import "./style.css";
 import HavokPhysics from "@babylonjs/havok";
-import envFile from "./assets/university_workshop_8k.env?url";
+// import envFile from "./assets/university_workshop_8k.env?url";
 import concreteFloorDiffuse from "./assets/concrete_floor_worn_001_2k.gltf/textures/concrete_floor_worn_001_diff_2k.jpg?url";
 import concreteFloorNormal from "./assets/concrete_floor_worn_001_2k.gltf/textures/concrete_floor_worn_001_nor_gl_2k.jpg?url";
 import concreteFloorRoughness from "./assets/concrete_floor_worn_001_2k.gltf/textures/concrete_floor_worn_001_rough_2k.jpg?url";
@@ -8,11 +8,11 @@ import hammerSound from "./assets/universfield-hammer-steel-impact-454390.mp3?ur
 import metalColor from "./assets/Metal023_4K_Color.jpg?url";
 import metalNormal from "./assets/Metal023_4K_NormalGL.jpg?url";
 import metalDisplacement from "./assets/Metal023_4K_Displacement.jpg?url";
+import fontData from "./assets/fonts.json";
 import {
     AbstractEngine,
     ArcRotateCamera,
     Color3,
-    CubeTexture,
     Engine,
     HavokPlugin,
     MeshBuilder,
@@ -30,9 +30,115 @@ import {
     ShadowGenerator,
     Color4,
     DefaultRenderingPipeline,
+    InstancedMesh,
 } from "@babylonjs/core";
 
+import earcut from "https://cdn.jsdelivr.net/npm/earcut/+esm";
 import "@babylonjs/inspector";
+
+function executePushAnimation(
+    mesh: Mesh | InstancedMesh,
+    sizing: number,
+    frameCount: number,
+): void {
+    let currentFrame = 0;
+    const animate = () => {
+        if (currentFrame >= frameCount) {
+            mesh.scaling = new Vector3(1, 1, 1);
+            mesh.getScene().onBeforeRenderObservable.remove(observable);
+            return;
+        }
+        const scale = 1 + (sizing - 1) * Math.sin((currentFrame / frameCount) * Math.PI);
+        mesh.scaling = new Vector3(scale, scale, scale);
+        currentFrame++;
+    };
+    let observable = mesh.getScene().onBeforeRenderObservable.add(animate);
+}
+
+class UserSaveDataManager {
+    private readonly STORAGE_KEY = "GearsGameSaveData";
+
+    public async saveData<T>(data: T): Promise<void> {
+        try {
+            const jsonData = JSON.stringify(data);
+            localStorage.setItem(this.STORAGE_KEY, jsonData);
+        } catch (error) {
+            console.error("Failed to save data:", error);
+        }
+    }
+
+    public async loadData<T>(): Promise<T | null> {
+        try {
+            const jsonData = localStorage.getItem(this.STORAGE_KEY);
+            if (jsonData) {
+                return JSON.parse(jsonData) as T;
+            }
+            return null;
+        } catch (error) {
+            console.error("Failed to load data:", error);
+            return null;
+        }
+    }
+}
+
+class FontRenderer {
+    private meshesByChar: Map<string, Mesh> = new Map();
+    private instances: InstancedMesh[] = [];
+
+    public constructor(scene: Scene) {
+        this.meshesByChar = new Map();
+        Object.keys(fontData.glyphs).map((char) => {
+            const mesh = MeshBuilder.CreateText(
+                `char-${char}`,
+                char,
+                fontData,
+                {
+                    depth: 0.1,
+                    resolution: 32,
+                    size: 0.3,
+                },
+                scene,
+                earcut,
+            );
+            if (!mesh) {
+                console.warn(`Failed to create mesh for character: ${char}`);
+                return;
+            }
+            const material = new PBRMetallicRoughnessMaterial(`mat-${char}`, scene);
+            material.baseColor = new Color3(0.8, 0.8, 0.8);
+            // material.baseTexture = new Texture(metalColor, scene, false);
+            // material.normalTexture = new Texture(metalNormal, scene, false);
+            // material.metallicRoughnessTexture = new Texture(metalDisplacement, scene, false);
+            material.emissiveColor = new Color3(0.9, 0.9, 0.9);
+            // material.disableLighting = true;
+            mesh.material = material;
+            mesh.isVisible = false;
+            mesh.position.y = 2; // Raise text above the ground
+            mesh.rotation.x = Math.PI / 4; // Rotate to lay flat on the ground
+            this.meshesByChar.set(char, mesh);
+        });
+    }
+
+    public render(text: string): void {
+        for (const instance of this.instances) {
+            instance.dispose();
+        }
+
+        for (const [index, char] of Array.from(text).entries()) {
+            if (!this.meshesByChar.has(char)) {
+                continue;
+            }
+            const mesh = this.meshesByChar.get(char);
+            if (mesh) {
+                const instance = mesh.createInstance(`instance-${char}-${crypto.randomUUID()}`);
+                instance.isVisible = true;
+                instance.position.x = index * 0.4 - (text.length - 1) * 0.2; // Center the text
+                executePushAnimation(instance, 1.2, 3);
+                this.instances.push(instance);
+            }
+        }
+    }
+}
 
 /**
  * 歯車モデルをプリミティブから作成する
@@ -138,6 +244,15 @@ async function main(): Promise<void> {
     const havokPlugin = new HavokPlugin(true, havokInstance);
     scene.enablePhysics(new Vector3(0, -9.81, 0), havokPlugin);
 
+    const font = new FontRenderer(scene);
+    const saveDataManager = new UserSaveDataManager();
+    let savedData = await saveDataManager.loadData<{ gearsCount: number }>();
+    if (savedData === null) {
+        savedData = { gearsCount: 0 };
+    }
+    let gearsCount = savedData.gearsCount;
+    font.render(`${gearsCount} gear${gearsCount !== 1 ? "s" : ""}`);
+
     const renderingPipeline = new DefaultRenderingPipeline(
         "defaultPipeline",
         true,
@@ -179,7 +294,7 @@ async function main(): Promise<void> {
     box.material = boxMat;
     new PhysicsAggregate(box, PhysicsShapeType.BOX, { mass: 0, restitution: 0.4 }, scene);
 
-    const MAX_GEARS = 30;
+    const MAX_GEARS = 50;
     const gears: Mesh[] = [];
 
     // Spawn a Sphere rigid body on mouse click or touch tap
@@ -221,6 +336,10 @@ async function main(): Promise<void> {
             },
             scene,
         );
+        gearsCount++;
+        font.render(`${gearsCount.toString()} ${gearsCount < 2 ? "gear" : "gears"}`);
+        saveDataManager.saveData({ gearsCount });
+        executePushAnimation(box, 1.2, 5);
         physics.body.applyImpulse(
             new Vector3((Math.random() - 0.5) * 5, 5, (Math.random() - 0.5) * 5),
             gearInstance.getAbsolutePosition(),
