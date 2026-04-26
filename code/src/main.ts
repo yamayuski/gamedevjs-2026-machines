@@ -302,7 +302,7 @@ async function main(): Promise<void> {
         await audioEngine.unlockAsync();
         if (pointerInfo.type !== PointerEventTypes.POINTERDOWN) return;
 
-        hammerImpactSound.pitch = (0.5 + Math.random()) * 400 - 200; // Randomize pitch for variety
+        hammerImpactSound.pitch = (0.5 + Math.random()) * 600 - 300; // Randomize pitch for variety
         hammerImpactSound.setVolume(0.7);
         hammerImpactSound.play();
 
@@ -337,7 +337,9 @@ async function main(): Promise<void> {
             scene,
         );
         gearsCount++;
-        font.render(`${gearsCount.toString()} ${gearsCount < 2 ? "gear" : "gears"}`);
+        font.render(
+            `${Intl.NumberFormat("en-US").format(gearsCount)} ${gearsCount < 2 ? "gear" : "gears"}`,
+        );
         saveDataManager.saveData({ gearsCount });
         executePushAnimation(box, 1.2, 5);
         physics.body.applyImpulse(
